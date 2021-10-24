@@ -1,0 +1,46 @@
+linters:
+  disable-all: true
+  enable:
+    - revive
+    - stylecheck
+    - gofmt
+    - goimports
+    - gosimple
+    - govet
+    - misspell
+    - vetshadow
+
+linters-settings:
+  revive:
+    ingnore-generated-header: true
+    severity: error
+    rules:
+      - name: blank-imports
+      - name: context-as-argument
+      - name: context-keys-type
+      - name: dot-imports
+      - name: error-return
+      - name: error-strings
+      - name: error-naming
+      - name: exported
+      - name: if-return
+      - name: increment-decrement
+      - name: var-naming
+      - name: var-declaration
+      - name: package-comments
+      - name: range
+      - name: receiver-naming
+      - name: time-naming
+      - name: unexported-return
+      - name: indent-error-flow
+      - name: errorf
+      - name: empty-block
+      - name: superfluous-else
+      - name: unused-parameter
+      - name: unreachable-code
+      - name: redefines-builtin-id
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0 # show all errors
+  max-same-issues: 0  # show all errors
