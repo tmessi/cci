@@ -37,6 +37,45 @@ and add it to your environment:
 export CIRCLE_CI_TOKEN=<personal access token>
 ```
 
+### Subcommands
+
+#### Report status
+
+```bash
+# no subcommand defaults to status
+cci
+# If you like typing
+cci status
+# If you like typing, but not too much
+cci s
+```
+
+#### See output of a build
+
+```bash
+cci output <build number>
+cci o <build number>
+cci o <workflow name> <job name>
+```
+
+You can then easily pipe the output to other tools:
+
+```bash
+cci o test build | grep 'FAIL:'
+```
+
+#### Retry a build
+
+If a build fails for transient reasons,
+like a network error while installing dependencies,
+it can be retried:
+
+```bash
+cci retry <build number>
+cci r <build number>
+cci r <workflow name> <job name>
+```
+
 For more usage information and flags, see the help:
 
 ```bash
