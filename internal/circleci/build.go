@@ -168,3 +168,34 @@ func (c *Client) BuildActionOutput(ctx context.Context, b *BuildAction) (string,
 	}
 	return out, nil
 }
+
+// RetryBuild will attempt to re-run a build.
+//
+// https://circleci.com/docs/api/v1/#retry-a-build
+func (c *Client) RetryBuild(ctx context.Context, num uint64) (*BuildSummary, error) {
+	url := fmt.Sprintf("%s/%d/retry", c.baseURL(), num)
+
+	req, err := http.NewRequest("POST", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.do(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := ioutil.ReadAll(resp.Body)
+		return nil, fmt.Errorf("response error: %d: %q", resp.StatusCode, body)
+	}
+
+	bs := BuildSummary{}
+	decoder := json.NewDecoder(resp.Body)
+	if err := decoder.Decode(&bs); err != nil {
+		return nil, err
+	}
+
+	return &bs, nil
+}

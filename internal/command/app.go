@@ -6,6 +6,7 @@ import (
 
 	"github.com/tmessi/cci/internal/command/internal/global"
 	"github.com/tmessi/cci/internal/command/internal/output"
+	"github.com/tmessi/cci/internal/command/internal/retry"
 	"github.com/tmessi/cci/internal/command/internal/status"
 )
 
@@ -22,6 +23,7 @@ func App() *cli.App {
 	app.Commands = []*cli.Command{
 		status.Command,
 		output.Command,
+		retry.Command,
 	}
 
 	return app
