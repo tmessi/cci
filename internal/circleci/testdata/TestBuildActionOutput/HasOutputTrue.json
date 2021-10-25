@@ -1,0 +1,7 @@
+[
+  {
+    "message": "Found a cache from build 13 at go-mod-v4-e9cX1Vj+6JCCGWLDOuWSzyiSzF3fE9ayVDQOCbRkWAM=\nSize: 226 MiB\nCached paths:\n  * /go/pkg/mod\n\nDownloading cache archive...\nValidating cache...\n\nUnarchiving cache...\n",
+    "time": "2021-10-25T01:13:44.965Z",
+    "type": "out"
+  }
+]

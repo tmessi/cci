@@ -1,0 +1,354 @@
+{
+  "compare": null,
+  "previous_successful_build": {
+    "build_num": 12,
+    "status": "success",
+    "build_time_millis": 22702
+  },
+  "build_parameters": {},
+  "oss": false,
+  "all_commit_details_truncated": false,
+  "committer_date": "2021-10-24T20:08:49.000Z",
+  "steps": [
+    {
+      "name": "Spin up environment",
+      "actions": [
+        {
+          "truncated": false,
+          "index": 0,
+          "parallel": true,
+          "failed": null,
+          "infrastructure_fail": null,
+          "name": "Spin up environment",
+          "bash_command": null,
+          "status": "success",
+          "timedout": null,
+          "continue": null,
+          "end_time": "2021-10-24T20:09:04.473Z",
+          "type": "test",
+          "allocation_id": "6175bd59615b81103acef593-0-build/56382698",
+          "output_url": "https://circle-production-action-output.s3.amazonaws.com/b4a9ff1942198703d5db5716-61745bc6bc80122676db990e-0-0",
+          "start_time": "2021-10-24T20:09:01.095Z",
+          "background": false,
+          "exit_code": null,
+          "insignificant": false,
+          "canceled": null,
+          "step": 0,
+          "run_time_millis": 3378,
+          "has_output": true
+        }
+      ]
+    },
+    {
+      "name": "Preparing environment variables",
+      "actions": [
+        {
+          "truncated": false,
+          "index": 0,
+          "parallel": true,
+          "failed": null,
+          "infrastructure_fail": null,
+          "name": "Preparing environment variables",
+          "bash_command": null,
+          "status": "success",
+          "timedout": null,
+          "continue": null,
+          "end_time": "2021-10-24T20:09:04.740Z",
+          "type": "test",
+          "allocation_id": "6175bd59615b81103acef593-0-build/56382698",
+          "output_url": "https://circle-production-action-output.s3.amazonaws.com/6da08a51414f17bc06db5716-61745bc6bc80122676db990e-99-0",
+          "start_time": "2021-10-24T20:09:04.706Z",
+          "background": false,
+          "exit_code": null,
+          "insignificant": false,
+          "canceled": null,
+          "step": 99,
+          "run_time_millis": 34,
+          "has_output": true
+        }
+      ]
+    },
+    {
+      "name": "Checkout code",
+      "actions": [
+        {
+          "truncated": false,
+          "index": 0,
+          "parallel": true,
+          "failed": null,
+          "infrastructure_fail": null,
+          "name": "Checkout code",
+          "bash_command": "#!/bin/sh\nset -e\n\n# Workaround old docker images with incorrect $HOME\n# check https://github.com/docker/docker/issues/2968 for details\nif [ \"${HOME}\" = \"/\" ]\nthen\n  export HOME=$(getent passwd $(id -un) | cut -d: -f6)\nfi\n\necho \"Using SSH Config Dir '$SSH_CONFIG_DIR'\"\ngit --version \n\nmkdir -p \"$SSH_CONFIG_DIR\"\nchmod 0700 \"$SSH_CONFIG_DIR\"\n\nprintf \"%s\" 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==\nbitbucket.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAubiN81eDcafrgMeLzaFPsw2kNvEcqTKl/VqLat/MaB33pZy0y3rJZtnqwR2qOOvbwKZYKiEO1O6VqNEBxKvJJelCq0dTXWT5pbO2gDXC6h6QDXCaHo6pOHGPUy+YBaGQRGuSusMEASYiWunYN0vCAI8QaXnWMXNMdFP3jHAJH0eDsoiGnLPBlBp4TNm6rYI74nMzgz3B9IikW4WVK+dc8KZJZWYjAuORU3jc1c/NPskD2ASinf8v3xnfXeukU0sJ5N6m5E8VLjObPEO+mN2t/FZTMZLiFqPWc/ALSqnMnnhwrNi2rbfg/rd/IpL8Le3pSBne8+seeFVBoGqzHM9yXw==\n' >> \"$SSH_CONFIG_DIR/known_hosts\"\nchmod 0600 \"$SSH_CONFIG_DIR/known_hosts\"\n\nrm -f \"$SSH_CONFIG_DIR/id_rsa\"\nprintf \"%s\" \"$CHECKOUT_KEY\" > \"$SSH_CONFIG_DIR/id_rsa\"\nchmod 0600 \"$SSH_CONFIG_DIR/id_rsa\"\nif (: \"${CHECKOUT_KEY_PUBLIC?}\") 2>/dev/null; then\n  rm -f \"$SSH_CONFIG_DIR/id_rsa.pub\"\n  printf \"%s\" \"$CHECKOUT_KEY_PUBLIC\" > \"$SSH_CONFIG_DIR/id_rsa.pub\"\nfi\n\nexport GIT_SSH_COMMAND='ssh -i \"$SSH_CONFIG_DIR/id_rsa\" -o UserKnownHostsFile=\"$SSH_CONFIG_DIR/known_hosts\"'\n\n# use git+ssh instead of https\ngit config --global url.\"ssh://git@github.com\".insteadOf \"https://github.com\" || true\ngit config --global gc.auto 0 || true\n\nif [ -e '/home/circleci/repo/.git' ] ; then\n  echo 'Fetching into existing repository'\n  existing_repo='true'\n  cd '/home/circleci/repo'\n  git remote set-url origin \"$CIRCLE_REPOSITORY_URL\" || true\nelse\n  echo 'Cloning git repository'\n  existing_repo='false'\n  mkdir -p '/home/circleci/repo'\n  cd '/home/circleci/repo'\n  git clone --no-checkout \"$CIRCLE_REPOSITORY_URL\" .\nfi\n\nif [ \"$existing_repo\" = 'true' ] || [ 'false' = 'true' ]; then\n  echo 'Fetching from remote repository'\n  if [ -n \"$CIRCLE_TAG\" ]; then\n    git fetch --force --tags origin\n  else\n    git fetch --force origin '+refs/heads/main:refs/remotes/origin/main'\n  fi\nfi\n\nif [ -n \"$CIRCLE_TAG\" ]; then\n  echo 'Checking out tag'\n  git checkout --force \"$CIRCLE_TAG\"\n  git reset --hard \"$CIRCLE_SHA1\"\nelse\n  echo 'Checking out branch'\n  git checkout --force -B \"$CIRCLE_BRANCH\" \"$CIRCLE_SHA1\"\n  git --no-pager log --no-color -n 1 --format='HEAD is now at %h %s'\nfi\n",
+          "status": "success",
+          "timedout": null,
+          "continue": null,
+          "end_time": "2021-10-24T20:09:05.372Z",
+          "type": "test",
+          "allocation_id": "6175bd59615b81103acef593-0-build/56382698",
+          "output_url": "https://circle-production-action-output.s3.amazonaws.com/7da08a51414f17bc06db5716-61745bc6bc80122676db990e-101-0",
+          "start_time": "2021-10-24T20:09:04.752Z",
+          "background": false,
+          "exit_code": null,
+          "insignificant": false,
+          "canceled": null,
+          "step": 101,
+          "run_time_millis": 620,
+          "has_output": true
+        }
+      ]
+    },
+    {
+      "name": "Restoring cache",
+      "actions": [
+        {
+          "truncated": false,
+          "index": 0,
+          "parallel": true,
+          "failed": null,
+          "infrastructure_fail": null,
+          "name": "Restoring cache",
+          "bash_command": null,
+          "status": "success",
+          "timedout": null,
+          "continue": null,
+          "end_time": "2021-10-24T20:09:11.353Z",
+          "type": "test",
+          "allocation_id": "6175bd59615b81103acef593-0-build/56382698",
+          "output_url": "https://circle-production-action-output.s3.amazonaws.com/05a9ff194219870316db5716-61745bc6bc80122676db990e-102-0",
+          "start_time": "2021-10-24T20:09:05.380Z",
+          "background": false,
+          "exit_code": null,
+          "insignificant": false,
+          "canceled": null,
+          "step": 102,
+          "run_time_millis": 5973,
+          "has_output": true
+        }
+      ]
+    },
+    {
+      "name": "Install Dependencies",
+      "actions": [
+        {
+          "truncated": false,
+          "index": 0,
+          "parallel": true,
+          "failed": null,
+          "infrastructure_fail": null,
+          "name": "Install Dependencies",
+          "bash_command": "#!/bin/bash -eo pipefail\ngo mod download",
+          "status": "success",
+          "timedout": null,
+          "continue": null,
+          "end_time": "2021-10-24T20:09:11.452Z",
+          "type": "test",
+          "allocation_id": "6175bd59615b81103acef593-0-build/56382698",
+          "start_time": "2021-10-24T20:09:11.360Z",
+          "background": false,
+          "exit_code": 0,
+          "insignificant": false,
+          "canceled": null,
+          "step": 103,
+          "run_time_millis": 92,
+          "has_output": false
+        }
+      ]
+    },
+    {
+      "name": "Saving cache",
+      "actions": [
+        {
+          "truncated": false,
+          "index": 0,
+          "parallel": true,
+          "failed": null,
+          "infrastructure_fail": null,
+          "name": "Saving cache",
+          "bash_command": null,
+          "status": "success",
+          "timedout": null,
+          "continue": null,
+          "end_time": "2021-10-24T20:09:11.490Z",
+          "type": "test",
+          "allocation_id": "6175bd59615b81103acef593-0-build/56382698",
+          "output_url": "https://circle-production-action-output.s3.amazonaws.com/95a9ff194219870376db5716-61745bc6bc80122676db990e-104-0",
+          "start_time": "2021-10-24T20:09:11.459Z",
+          "background": false,
+          "exit_code": null,
+          "insignificant": false,
+          "canceled": null,
+          "step": 104,
+          "run_time_millis": 31,
+          "has_output": true
+        }
+      ]
+    },
+    {
+      "name": "Install golangci-lint",
+      "actions": [
+        {
+          "truncated": false,
+          "index": 0,
+          "parallel": true,
+          "failed": null,
+          "infrastructure_fail": null,
+          "name": "Install golangci-lint",
+          "bash_command": "#!/bin/bash -eo pipefail\ncurl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.42.1\n",
+          "status": "success",
+          "timedout": null,
+          "continue": null,
+          "end_time": "2021-10-24T20:09:12.360Z",
+          "type": "test",
+          "allocation_id": "6175bd59615b81103acef593-0-build/56382698",
+          "output_url": "https://circle-production-action-output.s3.amazonaws.com/a5a9ff194219870376db5716-61745bc6bc80122676db990e-105-0",
+          "start_time": "2021-10-24T20:09:11.497Z",
+          "background": false,
+          "exit_code": 0,
+          "insignificant": false,
+          "canceled": null,
+          "step": 105,
+          "run_time_millis": 863,
+          "has_output": true
+        }
+      ]
+    },
+    {
+      "name": "Run lint",
+      "actions": [
+        {
+          "truncated": false,
+          "index": 0,
+          "parallel": true,
+          "failed": null,
+          "infrastructure_fail": null,
+          "name": "Run lint",
+          "bash_command": "#!/bin/bash -eo pipefail\ngolangci-lint run\n",
+          "status": "success",
+          "timedout": null,
+          "continue": null,
+          "end_time": "2021-10-24T20:09:24.345Z",
+          "type": "test",
+          "allocation_id": "6175bd59615b81103acef593-0-build/56382698",
+          "start_time": "2021-10-24T20:09:12.369Z",
+          "background": false,
+          "exit_code": 0,
+          "insignificant": false,
+          "canceled": null,
+          "step": 106,
+          "run_time_millis": 11976,
+          "has_output": false
+        }
+      ]
+    }
+  ],
+  "body": "",
+  "usage_queued_at": "2021-10-24T20:08:57.433Z",
+  "context_ids": [],
+  "fail_reason": null,
+  "retry_of": null,
+  "reponame": "cci",
+  "ssh_users": [],
+  "build_url": "https://circleci.com/gh/tmessi/cci/20",
+  "parallel": 1,
+  "failed": false,
+  "branch": "main",
+  "username": "tmessi",
+  "author_date": "2021-10-24T20:08:49.000Z",
+  "why": "github",
+  "user": {
+    "is_user": true,
+    "login": "tmessi",
+    "avatar_url": "https://avatars.githubusercontent.com/u/3118978?v=4",
+    "name": "Timothy Messier",
+    "vcs_type": "github",
+    "id": 3118978
+  },
+  "vcs_revision": "7602172445edea3256a5007ec11cd051aa9b133c",
+  "workflows": {
+    "job_name": "lint",
+    "job_id": "41543da6-b88d-4310-b249-4e060e8623c1",
+    "workflow_id": "47b8b145-6e01-47e3-8c2d-cf35212f682f",
+    "workspace_id": "47b8b145-6e01-47e3-8c2d-cf35212f682f",
+    "upstream_job_ids": [],
+    "upstream_concurrency_map": {},
+    "workflow_name": "linter"
+  },
+  "owners": [
+    "tmessi"
+  ],
+  "vcs_tag": null,
+  "pull_requests": [],
+  "build_num": 20,
+  "infrastructure_fail": false,
+  "committer_email": "tmessi@test.test",
+  "has_artifacts": true,
+  "previous": {
+    "build_num": 19,
+    "status": "success",
+    "build_time_millis": 44910
+  },
+  "status": "success",
+  "committer_name": "Timothy Messier",
+  "retries": null,
+  "subject": "Initial code",
+  "vcs_type": "github",
+  "timedout": false,
+  "dont_build": null,
+  "lifecycle": "finished",
+  "stop_time": "2021-10-24T20:09:24.500Z",
+  "ssh_disabled": true,
+  "build_time_millis": 23440,
+  "picard": {
+    "build_agent": {
+      "image": "1.0.88668-5f562201",
+      "properties": {
+        "nomad_ami": "ami-0c36d9771f57f278d",
+        "availability_zone": "us-east-1f",
+        "instance_id": "i-0bce5b45974d2ae2f",
+        "instance_ip": "172.29.119.20",
+        "build_agent": "1.0.88668-5f562201",
+        "executor": "docker"
+      }
+    },
+    "executor": "docker",
+    "resource_class": {
+      "cpu": 2.0,
+      "ram": 4096,
+      "class": "medium",
+      "name": "Docker Medium"
+    }
+  },
+  "circle_yml": {
+    "string": "version: 2\njobs:\n  unit:\n    working_directory: ~/repo\n    docker:\n    - image: circleci/golang:1.17\n    steps:\n    - checkout\n    - restore_cache:\n        keys:\n        - go-mod-v4-{{ checksum \"go.sum\" }}\n    - run:\n        name: Install Dependencies\n        command: go mod download\n    - save_cache:\n        key: go-mod-v4-{{ checksum \"go.sum\" }}\n        paths:\n        - /go/pkg/mod\n    - run:\n        name: Run tests\n        command: |\n          go test -v ./...\n  build:\n    working_directory: ~/repo\n    docker:\n    - image: circleci/golang:1.17\n    steps:\n    - checkout\n    - restore_cache:\n        keys:\n        - go-mod-v4-{{ checksum \"go.sum\" }}\n    - run:\n        name: Install Dependencies\n        command: go mod download\n    - save_cache:\n        key: go-mod-v4-{{ checksum \"go.sum\" }}\n        paths:\n        - /go/pkg/mod\n    - run:\n        name: Compile\n        command: |\n          cd cci && go build\n  lint:\n    working_directory: ~/repo\n    docker:\n    - image: circleci/golang:1.17\n    steps:\n    - checkout\n    - restore_cache:\n        keys:\n        - go-mod-v4-{{ checksum \"go.sum\" }}\n    - run:\n        name: Install Dependencies\n        command: go mod download\n    - save_cache:\n        key: go-mod-v4-{{ checksum \"go.sum\" }}\n        paths:\n        - /go/pkg/mod\n    - run:\n        name: Install golangci-lint\n        command: |\n          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.42.1\n    - run:\n        name: Run lint\n        command: |\n          golangci-lint run\nworkflows:\n  test:\n    jobs:\n    - unit\n    - build\n  linter:\n    jobs:\n    - lint\n  version: 2\n\n# Original config.yml file:\n# version: 2.1\n# \n# jobs:\n#   unit:\n#     working_directory: ~/repo\n#     docker:\n#       - image: circleci/golang:1.17\n#     steps:\n#       - checkout\n#       - restore_cache:\n#           keys:\n#             - go-mod-v4-{{ checksum \\\"go.sum\\\" }}\n#       - run:\n#           name: Install Dependencies\n#           command: go mod download\n#       - save_cache:\n#           key: go-mod-v4-{{ checksum \\\"go.sum\\\" }}\n#           paths:\n#             - \\\"/go/pkg/mod\\\"\n#       - run:\n#           name: Run tests\n#           command: |\n#             go test -v ./...\n#   build:\n#     working_directory: ~/repo\n#     docker:\n#       - image: circleci/golang:1.17\n#     steps:\n#       - checkout\n#       - restore_cache:\n#           keys:\n#             - go-mod-v4-{{ checksum \\\"go.sum\\\" }}\n#       - run:\n#           name: Install Dependencies\n#           command: go mod download\n#       - save_cache:\n#           key: go-mod-v4-{{ checksum \\\"go.sum\\\" }}\n#           paths:\n#             - \\\"/go/pkg/mod\\\"\n#       - run:\n#           name: Compile\n#           command: |\n#             cd cci && go build\n#   lint:\n#     working_directory: ~/repo\n#     docker:\n#       - image: circleci/golang:1.17\n#     steps:\n#       - checkout\n#       - restore_cache:\n#           keys:\n#             - go-mod-v4-{{ checksum \\\"go.sum\\\" }}\n#       - run:\n#           name: Install Dependencies\n#           command: go mod download\n#       - save_cache:\n#           key: go-mod-v4-{{ checksum \\\"go.sum\\\" }}\n#           paths:\n#             - \\\"/go/pkg/mod\\\"\n#       - run:\n#           name: Install golangci-lint\n#           command: |\n#             curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.42.1\n#       - run:\n#           name: Run lint\n#           command: |\n#             golangci-lint run\n# \n# workflows:\n#   test:\n#     jobs:\n#       - unit\n#       - build\n#   linter:\n#     jobs:\n#       - lint"
+  },
+  "messages": [],
+  "is_first_green_build": false,
+  "job_name": null,
+  "start_time": "2021-10-24T20:09:01.060Z",
+  "canceler": null,
+  "all_commit_details": [
+    {
+      "committer_date": "2021-10-24T20:08:49.000Z",
+      "body": "",
+      "branch": "main",
+      "author_date": "2021-10-24T20:08:49.000Z",
+      "committer_email": "tmessi@test.test",
+      "commit": "7602172445edea3256a5007ec11cd051aa9b133c",
+      "committer_login": "tmessi",
+      "committer_name": "Timothy Messier",
+      "subject": "Initial code",
+      "commit_url": "https://github.com/tmessi/cci/commit/7602172445edea3256a5007ec11cd051aa9b133c",
+      "author_login": "tmessi",
+      "author_name": "Timothy Messier",
+      "author_email": "tmessi@test.test"
+    }
+  ],
+  "platform": "2.0",
+  "outcome": "success",
+  "vcs_url": "https://github.com/tmessi/cci",
+  "author_name": "Timothy Messier",
+  "node": null,
+  "queued_at": "2021-10-24T20:08:57.598Z",
+  "canceled": false,
+  "author_email": "tmessi@test.test"
+}
