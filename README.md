@@ -25,7 +25,7 @@ cci
 
 However,
 it does require a CircleCI Token to authenticate the requests.
-It is recommended to use the environment variable, `CIRCLECI_TOKEN`,
+It is recommended to use the environment variable, `CIRCLE_CI_TOKEN`,
 along with something like
 [direnv](https://direnv.net/).
 
