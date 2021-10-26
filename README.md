@@ -8,7 +8,7 @@ A cli for fetching the status and full output of CircleCI jobs.
 ## Install
 
 ```bash
-go get -u github.com/tmessi/cci/cci
+go install github.com/tmessi/cci/cci@latest
 ```
 
 ## Usage
