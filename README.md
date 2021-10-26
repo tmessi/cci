@@ -1,6 +1,9 @@
 # CCI
 
 [![CircleCI](https://circleci.com/gh/tmessi/cci/tree/main.svg?style=svg)](https://circleci.com/gh/tmessi/cci/tree/main)
+![test](https://github.com/tmessi/cci/actions/workflows/test.yml/badge.svg)
+![lint](https://github.com/tmessi/cci/actions/workflows/lint.yml/badge.svg)
+
 
 A cli for fetching the status and full output of CircleCI jobs.
 
