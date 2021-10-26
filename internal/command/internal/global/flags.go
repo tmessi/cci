@@ -56,8 +56,8 @@ var Flags = []cli.Flag{
 var (
 	ErrNoProject = errors.New("no project specified")
 	ErrNoOrg     = errors.New("no organization specified")
-	ErrNoVCSType = errors.New("no vsc-type specified")
-	ErrNoToken   = errors.New("no circleci tokoen specified")
+	ErrNoVCSType = errors.New("no vcs-type specified")
+	ErrNoToken   = errors.New("no circleci token specified")
 )
 
 // Client creates a circleci.Client from the global cli flags.
