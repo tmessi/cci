@@ -16,10 +16,10 @@ import (
 // Command is the output subcommand.
 var Command = &cli.Command{
 	Name:         "output",
-	ArgsUsage:    "<build number> | <workflow name> <job name>",
+	ArgsUsage:    "<job number> | <workflow name> <job name>",
 	Aliases:      []string{"out", "o"},
-	Usage:        "Show output of a build",
-	BashComplete: complete.Build,
+	Usage:        "Show output of a job",
+	BashComplete: complete.Job,
 	Action:       action,
 }
 
@@ -43,24 +43,20 @@ func action(c *cli.Context) error {
 		if err != nil {
 			return cli.NewExitError(err.Error(), -1)
 		}
-		workflow := s.Workflow(workflowName)
-		if workflow == nil {
-			return cli.NewExitError("workflow not found", 404)
-		}
-		job := workflow.Job(jobName)
+		job := s.Job(workflowName, jobName)
 		if job == nil {
 			return cli.NewExitError("job not found", 404)
 		}
-		n = job.BuildNum
+		n = job.Number
 	case 1:
 		strconv.Atoi(c.Args().Get(0))
-		buildNum, err := strconv.Atoi(c.Args().Get(0))
+		jobNum, err := strconv.Atoi(c.Args().Get(0))
 		if err != nil {
-			return cli.NewExitError("build number must be an int", -1)
+			return cli.NewExitError("job number must be an int", -1)
 		}
-		n = uint64(buildNum)
+		n = uint64(jobNum)
 	default:
-		return cli.NewExitError("must specify `<build number>` or `<workflow name> <job name>`", -1)
+		return cli.NewExitError("must specify `<job number>` or `<workflow name> <job name>`", -1)
 	}
 
 	b, err := output.GetBuild(ctx, client, n)

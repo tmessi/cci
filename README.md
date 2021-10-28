@@ -53,11 +53,11 @@ cci status
 cci s
 ```
 
-#### See output of a build
+#### See output of a job
 
 ```bash
-cci output <build number>
-cci o <build number>
+cci output <job number>
+cci o <job number>
 cci o <workflow name> <job name>
 ```
 
@@ -67,16 +67,15 @@ You can then easily pipe the output to other tools:
 cci o test build | grep 'FAIL:'
 ```
 
-#### Retry a build
+#### Retry a workflow
 
-If a build fails for transient reasons,
+If a job fails for transient reasons,
 like a network error while installing dependencies,
 it can be retried:
 
 ```bash
-cci retry <build number>
-cci r <build number>
-cci r <workflow name> <job name>
+cci retry <workflow name>
+cci r <workflow name>
 ```
 
 For more usage information and flags, see the help:

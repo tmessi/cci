@@ -8,10 +8,10 @@ import (
 )
 
 const status = `
-{{- range . }}
+{{- range .Pipeline.Workflows }}
 {{- .Name }}:
   {{- range .Jobs }}
-  {{ .BuildNum | printf "%-2d" }} {{ .Name | printf "%-30s" }} {{ .Status }}
+  {{ .Number | printf "%-2d" }} {{ .Name | printf "%-30s" }} {{ .Status }}
   {{- end }}
 {{ end -}}`
 

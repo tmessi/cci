@@ -3,7 +3,6 @@ package retry
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/tmessi/cci/internal/command/internal/complete"
 	"github.com/tmessi/cci/internal/command/internal/global"
@@ -16,10 +15,10 @@ import (
 // Command is the retry subcommand.
 var Command = &cli.Command{
 	Name:         "retry",
-	ArgsUsage:    "<build number> | <workflow name> <job name>",
+	ArgsUsage:    "<workflow name>",
 	Aliases:      []string{"r"},
 	Usage:        "Retry a build",
-	BashComplete: complete.Build,
+	BashComplete: complete.Workflow,
 	Action:       action,
 }
 
@@ -32,12 +31,11 @@ func action(c *cli.Context) error {
 		return cli.NewExitError(err.Error(), -1)
 	}
 
-	var n uint64
+	var workflowID string
 
 	switch c.NArg() {
-	case 2:
+	case 1:
 		workflowName := c.Args().Get(0)
-		jobName := c.Args().Get(1)
 
 		s, err := status.Check(ctx, client, c.String("branch"))
 		if err != nil {
@@ -47,26 +45,15 @@ func action(c *cli.Context) error {
 		if workflow == nil {
 			return cli.NewExitError("workflow not found", 404)
 		}
-		job := workflow.Job(jobName)
-		if job == nil {
-			return cli.NewExitError("job not found", 404)
-		}
-		n = job.BuildNum
-	case 1:
-		strconv.Atoi(c.Args().Get(0))
-		buildNum, err := strconv.Atoi(c.Args().Get(0))
-		if err != nil {
-			return cli.NewExitError("build number must be an int", -1)
-		}
-		n = uint64(buildNum)
+		workflowID = workflow.ID
 	default:
-		return cli.NewExitError("must specify `<build number>` or `<workflow name> <job name>`", -1)
+		return cli.NewExitError("must specify `<workflow name>`", -1)
 	}
 
-	b, err := retry.Build(ctx, client, n)
+	res, err := retry.Workflow(ctx, client, workflowID)
 	if err != nil {
 		return cli.NewExitError(err.Error(), -1)
 	}
-	fmt.Println(b)
+	fmt.Println(res)
 	return nil
 }

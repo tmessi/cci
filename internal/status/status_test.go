@@ -10,18 +10,18 @@ import (
 )
 
 type testClient struct {
-	bsr circleci.BuildSummaryResponse
+	ps  *circleci.Pipeline
 	err error
 }
 
-func (c *testClient) BuildSummary(_ context.Context, _ string) (circleci.BuildSummaryResponse, error) {
-	return c.bsr, c.err
+func (c *testClient) PipelineSummary(_ context.Context, _ string) (*circleci.Pipeline, error) {
+	return c.ps, c.err
 }
 
 func TestCheck(t *testing.T) {
 	tests := []struct {
 		name           string
-		bsr            circleci.BuildSummaryResponse
+		ps             *circleci.Pipeline
 		err            error
 		branch         string
 		expectedStatus *status.Status
@@ -45,61 +45,77 @@ func TestCheck(t *testing.T) {
 		},
 		{
 			"MultipleJobs",
-			circleci.BuildSummaryResponse{
-				{
-					BuildNum: 3,
-					Status:   "success",
-					Workflows: circleci.BuildSummaryWorkflow{
-						JobName: "unit",
-						Name:    "tests",
+			&circleci.Pipeline{
+				Workflows: []*circleci.Workflow{
+					{
+						ID:     "11111111-1111-1111-1111-111111111111",
+						Name:   "tests",
+						Status: "success",
+						Jobs: []*circleci.Job{
+							{
+								ID:     "11111111-1111-1111-1111-111111111112",
+								Name:   "unit",
+								Number: 1,
+								Status: "success",
+							},
+						},
 					},
-				},
-				{
-					BuildNum: 4,
-					Status:   "success",
-					Workflows: circleci.BuildSummaryWorkflow{
-						JobName: "gofmt",
-						Name:    "lint",
-					},
-				},
-				{
-					BuildNum: 5,
-					Status:   "success",
-					Workflows: circleci.BuildSummaryWorkflow{
-						JobName: "govet",
-						Name:    "lint",
+					{
+						ID:     "11111111-1111-1111-2222-111111111111",
+						Name:   "lint",
+						Status: "success",
+						Jobs: []*circleci.Job{
+							{
+								ID:     "11111111-1111-1111-2222-111111111112",
+								Name:   "gofmt",
+								Number: 2,
+								Status: "success",
+							},
+							{
+								ID:     "11111111-1111-1111-2222-111111111113",
+								Name:   "govet",
+								Number: 3,
+								Status: "success",
+							},
+						},
 					},
 				},
 			},
 			nil,
 			"branch",
 			&status.Status{
-				Workflows: []*status.Workflow{
-					{
-						Name: "lint",
-						Jobs: []*status.Job{
-							{
-								"gofmt",
-								"success",
-								4,
-								"lint",
-							},
-							{
-								"govet",
-								"success",
-								5,
-								"lint",
+				Pipeline: &circleci.Pipeline{
+					Workflows: []*circleci.Workflow{
+						{
+							ID:     "11111111-1111-1111-1111-111111111111",
+							Name:   "tests",
+							Status: "success",
+							Jobs: []*circleci.Job{
+								{
+									ID:     "11111111-1111-1111-1111-111111111112",
+									Name:   "unit",
+									Number: 1,
+									Status: "success",
+								},
 							},
 						},
-					},
-					{
-						Name: "tests",
-						Jobs: []*status.Job{
-							{
-								"unit",
-								"success",
-								3,
-								"tests",
+						{
+							ID:     "11111111-1111-1111-2222-111111111111",
+							Name:   "lint",
+							Status: "success",
+							Jobs: []*circleci.Job{
+								{
+									ID:     "11111111-1111-1111-2222-111111111112",
+									Name:   "gofmt",
+									Number: 2,
+									Status: "success",
+								},
+								{
+									ID:     "11111111-1111-1111-2222-111111111113",
+									Name:   "govet",
+									Number: 3,
+									Status: "success",
+								},
 							},
 						},
 					},
@@ -111,7 +127,7 @@ func TestCheck(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := &testClient{tt.bsr, tt.err}
+			client := &testClient{tt.ps, tt.err}
 
 			ctx := context.Background()
 			s, err := status.Check(ctx, client, tt.branch)
@@ -130,12 +146,12 @@ func TestCheck(t *testing.T) {
 				t.Fatalf("got error, but did not expect one")
 			}
 
-			if len(s.Workflows) != len(tt.expectedStatus.Workflows) {
-				t.Fatalf("got %d workflows, wanted %d workflows", len(s.Workflows), len(tt.expectedStatus.Workflows))
+			if len(s.Pipeline.Workflows) != len(tt.expectedStatus.Pipeline.Workflows) {
+				t.Fatalf("got %d workflows, wanted %d workflows", len(s.Pipeline.Workflows), len(tt.expectedStatus.Pipeline.Workflows))
 			}
 
-			for i, w := range s.Workflows {
-				wantWorkflow := tt.expectedStatus.Workflows[i]
+			for i, w := range s.Pipeline.Workflows {
+				wantWorkflow := tt.expectedStatus.Pipeline.Workflows[i]
 
 				if len(w.Jobs) != len(wantWorkflow.Jobs) {
 					t.Fatalf("got %d jobs, wanted %d jobs", len(w.Jobs), len(wantWorkflow.Jobs))
@@ -156,12 +172,8 @@ func TestCheck(t *testing.T) {
 						t.Errorf("Status: got %q, wanted %q", got.Status, want.Status)
 					}
 
-					if got.BuildNum != want.BuildNum {
-						t.Errorf("BuildNum: got %d, wanted %d", got.BuildNum, want.BuildNum)
-					}
-
-					if got.WorkflowName != want.WorkflowName {
-						t.Errorf("WorkflowName: got %q, wanted %q", got.WorkflowName, want.WorkflowName)
+					if got.Number != want.Number {
+						t.Errorf("Number: got %d, wanted %d", got.Number, want.Number)
 					}
 				}
 			}

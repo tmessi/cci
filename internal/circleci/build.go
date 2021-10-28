@@ -8,67 +8,6 @@ import (
 	"net/http"
 )
 
-// BuildSummaryWorkflow is used to Marshal the response from CircleCI
-// when checking the status of a branch.
-// Only fields used by cci are populated.
-//
-// https://circleci.com/docs/api/v1/?shell#recent-builds-for-a-single-project
-type BuildSummaryWorkflow struct {
-	JobName string `json:"job_name"`
-	Name    string `json:"workflow_name"`
-}
-
-// BuildSummary is used to Marshal the response from CircleCI
-// when checking the status of a branch.
-// Only fields used by cci are populated.
-//
-// https://circleci.com/docs/api/v1/?shell#recent-builds-for-a-single-project
-type BuildSummary struct {
-	BuildNum  uint64               `json:"build_num"`
-	Status    string               `json:"status"`
-	Workflows BuildSummaryWorkflow `json:"workflows"`
-}
-
-// BuildSummaryResponse is used to Marshal the response from CircleCI
-// when checking the status of a branch.
-//
-// https://circleci.com/docs/api/v1/?shell#recent-builds-for-a-single-project
-type BuildSummaryResponse []*BuildSummary
-
-// BuildSummary retrieves the summary of the latest build for the given branch.
-//
-// https://circleci.com/docs/api/v1/?shell#recent-builds-for-a-single-project
-func (c *Client) BuildSummary(ctx context.Context, branch string) (BuildSummaryResponse, error) {
-	url := c.baseURL()
-	if branch != "" {
-		url = fmt.Sprintf("%s/tree/%s", url, branch)
-	}
-
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := c.do(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
-		return nil, fmt.Errorf("response error: %d: %q", resp.StatusCode, body)
-	}
-
-	bsr := make(BuildSummaryResponse, 0)
-	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(&bsr); err != nil {
-		return nil, err
-	}
-
-	return bsr, nil
-}
-
 // BuildAction is used to Marshal the response from CircleCI
 // when retreiving the output of a build.
 // A BuildAction contains a URL that has to the full output
@@ -167,35 +106,4 @@ func (c *Client) BuildActionOutput(ctx context.Context, b *BuildAction) (string,
 		out += a.Message
 	}
 	return out, nil
-}
-
-// RetryBuild will attempt to re-run a build.
-//
-// https://circleci.com/docs/api/v1/#retry-a-build
-func (c *Client) RetryBuild(ctx context.Context, num uint64) (*BuildSummary, error) {
-	url := fmt.Sprintf("%s/%d/retry", c.baseURL(), num)
-
-	req, err := http.NewRequest("POST", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := c.do(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
-		return nil, fmt.Errorf("response error: %d: %q", resp.StatusCode, body)
-	}
-
-	bs := BuildSummary{}
-	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(&bs); err != nil {
-		return nil, err
-	}
-
-	return &bs, nil
 }

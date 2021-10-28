@@ -11,9 +11,9 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// Build provides completion values for commands that take build numbers or
+// Job provides completion values for commands that take Job numbers or
 // worflow and job names.
-func Build(c *cli.Context) {
+func Job(c *cli.Context) {
 	ctx, cancel := signal.InitContext()
 	defer cancel()
 
@@ -26,7 +26,7 @@ func Build(c *cli.Context) {
 	case nargs >= 2:
 		return
 	case nargs == 1:
-		// If first are is a build number, no additional args are needed.
+		// If first are is a Job number, no additional args are needed.
 		if _, err := strconv.Atoi(c.Args().Get(0)); err == nil {
 			return
 		}
@@ -49,10 +49,10 @@ func Build(c *cli.Context) {
 		if err != nil {
 			return
 		}
-		for _, w := range s.Workflows {
+		for _, w := range s.Pipeline.Workflows {
 			fmt.Println(w.Name)
 			for _, j := range w.Jobs {
-				fmt.Println(j.BuildNum)
+				fmt.Println(j.Number)
 			}
 		}
 	}
