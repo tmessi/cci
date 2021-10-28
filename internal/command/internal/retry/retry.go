@@ -37,7 +37,7 @@ func action(c *cli.Context) error {
 	case 1:
 		workflowName := c.Args().Get(0)
 
-		s, err := status.Check(ctx, client, c.String("branch"))
+		s, err := status.Check(ctx, client, c.String("branch"), 1)
 		if err != nil {
 			return cli.NewExitError(err.Error(), -1)
 		}

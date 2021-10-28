@@ -53,6 +53,17 @@ cci status
 cci s
 ```
 
+To see multiple pipeline runs used the `--limit|-l` flag:
+
+```bash
+cci --limit 5
+cci -l 5
+cci --limit 5 status
+cci -l 5 status
+cci --limit 5 s
+cci -l 5 s
+```
+
 #### See output of a job
 
 ```bash

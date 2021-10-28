@@ -6,6 +6,7 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/whilp/git-urls v1.0.0
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
 require (

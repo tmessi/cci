@@ -32,7 +32,7 @@ func Job(c *cli.Context) {
 		}
 
 		workflowName := c.Args().Get(0)
-		s, err := status.Check(ctx, client, c.String("branch"))
+		s, err := status.Check(ctx, client, c.String("branch"), 1)
 		if err != nil {
 			return
 		}
@@ -45,11 +45,15 @@ func Job(c *cli.Context) {
 			fmt.Println(j.Name)
 		}
 	default:
-		s, err := status.Check(ctx, client, c.String("branch"))
+		s, err := status.Check(ctx, client, c.String("branch"), 1)
 		if err != nil {
 			return
 		}
-		for _, w := range s.Pipeline.Workflows {
+		if len(s.Pipelines) <= 0 {
+			return
+		}
+
+		for _, w := range s.Pipelines[0].Workflows {
 			fmt.Println(w.Name)
 			for _, j := range w.Jobs {
 				fmt.Println(j.Number)

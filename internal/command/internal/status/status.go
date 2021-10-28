@@ -27,7 +27,7 @@ func action(c *cli.Context) error {
 		return cli.NewExitError(err.Error(), -1)
 	}
 
-	s, err := status.Check(ctx, client, c.String("branch"))
+	s, err := status.Check(ctx, client, c.String("branch"), c.Uint64("limit"))
 	if err != nil {
 		return cli.NewExitError(err.Error(), -1)
 	}

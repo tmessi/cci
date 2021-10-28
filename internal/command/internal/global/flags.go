@@ -50,6 +50,12 @@ var Flags = []cli.Flag{
 		EnvVars: []string{"CIRCLE_CI_URL"},
 		Value:   "https://circleci.com",
 	},
+	&cli.Uint64Flag{
+		Name:    "limit",
+		Aliases: []string{"l"},
+		Usage:   "The number of pipeline results to return",
+		Value:   1,
+	},
 }
 
 // Errors for invalid flag values.

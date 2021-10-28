@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 // Job provides a summary of a Job. A workflow contains one or more Jobs.
@@ -28,6 +31,9 @@ type Workflow struct {
 // Pipeline provides a summary of a single pipeline execution.
 type Pipeline struct {
 	ID        string      `json:"id"`
+	Number    uint64      `json:"number"`
+	State     string      `json:"state"`
+	Updated   *time.Time  `json:"updated_at"`
 	Workflows []*Workflow `json:"-"`
 }
 
@@ -53,7 +59,7 @@ type pipelineListResponse struct {
 }
 
 // https://circleci.com/docs/api/v2/#operation/listPipelinesForProject
-func (c *Client) mostRecentPipeline(ctx context.Context, branch string) (*Pipeline, error) {
+func (c *Client) recentPipelines(ctx context.Context, branch string, limit uint64) ([]*Pipeline, error) {
 	url := c.basePipelineListURL()
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -87,7 +93,11 @@ func (c *Client) mostRecentPipeline(ctx context.Context, branch string) (*Pipeli
 		return nil, fmt.Errorf("no pipelines for branch: %s", branch)
 	}
 
-	return plr.Items[0], nil
+	if uint64(len(plr.Items)) < limit {
+		return plr.Items, nil
+	}
+
+	return plr.Items[:limit], nil
 }
 
 type pipelineWorkflowListReponse struct {
@@ -125,24 +135,37 @@ func (c *Client) workflows(ctx context.Context, p *Pipeline) ([]*Workflow, error
 	return pwlr.Items, nil
 }
 
-// PipelineSummary returns a summary of the most recent Pipeline execution for the given branch.
-func (c *Client) PipelineSummary(ctx context.Context, branch string) (*Pipeline, error) {
-	p, err := c.mostRecentPipeline(ctx, branch)
+// Pipelines returns a summary of the most recent Pipeline execution for the given branch.
+func (c *Client) Pipelines(ctx context.Context, branch string, limit uint64) ([]*Pipeline, error) {
+	pipelines, err := c.recentPipelines(ctx, branch, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	p.Workflows, err = c.workflows(ctx, p)
-	if err != nil {
+	g := new(errgroup.Group)
+
+	for _, p := range pipelines {
+		p := p // https://golang.org/doc/faq#closures_and_goroutines
+
+		g.Go(func() error {
+			p.Workflows, err = c.workflows(ctx, p)
+			if err != nil {
+				return err
+			}
+
+			for _, w := range p.Workflows {
+				w.Jobs, err = c.jobs(ctx, w)
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		})
+	}
+
+	if err := g.Wait(); err != nil {
 		return nil, err
 	}
 
-	for _, w := range p.Workflows {
-		w.Jobs, err = c.jobs(ctx, w)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return p, nil
+	return pipelines, nil
 }

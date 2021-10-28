@@ -16,7 +16,7 @@ var (
 
 // Status reports the status of a set of CI workflows for a branch.
 type Status struct {
-	Pipeline *circleci.Pipeline
+	Pipelines []*circleci.Pipeline
 }
 
 func (s *Status) String() string {
@@ -26,7 +26,11 @@ func (s *Status) String() string {
 // Workflow returns the Workflow with the given name.
 // If no Workflow is found, it will return nil.
 func (s *Status) Workflow(name string) *circleci.Workflow {
-	for _, w := range s.Pipeline.Workflows {
+	if len(s.Pipelines) <= 0 {
+		return nil
+	}
+
+	for _, w := range s.Pipelines[0].Workflows {
 		if w.Name == name {
 			return w
 		}
@@ -49,19 +53,23 @@ func (s *Status) Job(workflowName, name string) *circleci.Job {
 }
 
 type client interface {
-	PipelineSummary(context.Context, string) (*circleci.Pipeline, error)
+	Pipelines(context.Context, string, uint64) ([]*circleci.Pipeline, error)
 }
 
 // Check queries CircleCI for the status of a set of Jobs for the given Project and branch.
-func Check(ctx context.Context, c client, branch string) (*Status, error) {
+func Check(ctx context.Context, c client, branch string, limit uint64) (*Status, error) {
 	if branch == "" {
 		return nil, ErrNoBranch
 	}
 
-	p, err := c.PipelineSummary(ctx, branch)
+	if limit == 0 {
+		limit = 1
+	}
+
+	p, err := c.Pipelines(ctx, branch, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Status{Pipeline: p}, nil
+	return &Status{Pipelines: p}, nil
 }

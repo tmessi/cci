@@ -24,11 +24,14 @@ func Workflow(c *cli.Context) {
 	case nargs >= 1:
 		return
 	default:
-		s, err := status.Check(ctx, client, c.String("branch"))
+		s, err := status.Check(ctx, client, c.String("branch"), 1)
 		if err != nil {
 			return
 		}
-		for _, w := range s.Pipeline.Workflows {
+		if len(s.Pipelines) <= 0 {
+			return
+		}
+		for _, w := range s.Pipelines[0].Workflows {
 			fmt.Println(w.Name)
 		}
 	}
