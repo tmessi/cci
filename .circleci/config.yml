@@ -41,6 +41,10 @@ jobs:
           name: Compile
           command: |
             cd cci && go build
+      - run:
+          name: Slow
+          command: |
+            for i in {0..10}; do echo $i; sleep 5; done
   lint:
     working_directory: ~/repo
     docker:
