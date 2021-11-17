@@ -31,7 +31,7 @@ func (b *Build) String() string {
 
 type client interface {
 	Build(context.Context, uint64) (*circleci.BuildResponse, error)
-	BuildActionOutput(context.Context, *circleci.BuildAction) (string, error)
+	BuildActionOutput(context.Context, uint64, *circleci.BuildAction) (string, error)
 }
 
 // GetBuild retrieves the output of given build number.
@@ -44,16 +44,14 @@ func GetBuild(ctx context.Context, c client, buildNum uint64) (*Build, error) {
 	steps := make([]*Step, 0, len(br.Steps))
 	for _, step := range br.Steps {
 		for _, action := range step.Actions {
-			if action.HasOutput {
-				o, err := c.BuildActionOutput(ctx, action)
-				if err != nil {
-					return nil, err
-				}
-				steps = append(steps, &Step{
-					Name:   step.Name,
-					Output: o,
-				})
+			o, err := c.BuildActionOutput(ctx, buildNum, action)
+			if err != nil {
+				return nil, err
 			}
+			steps = append(steps, &Step{
+				Name:   step.Name,
+				Output: o,
+			})
 		}
 	}
 	return &Build{Steps: steps}, nil

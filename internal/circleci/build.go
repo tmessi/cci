@@ -17,6 +17,9 @@ import (
 type BuildAction struct {
 	OutputURL string `json:"output_url"`
 	HasOutput bool   `json:"has_output"`
+	Step      uint64 `json:"step"`
+	Index     uint64 `json:"index"`
+	Status    string `json:"status"`
 }
 
 // BuildStep is used to Marshal the response from CircleCI
@@ -26,6 +29,7 @@ type BuildAction struct {
 // https://circleci.com/docs/api/v1/?shell#single-job
 type BuildStep struct {
 	Name    string         `json:"name"`
+	Num     string         `json:"build_num"`
 	Actions []*BuildAction `json:"actions"`
 }
 
@@ -77,15 +81,30 @@ type actionOutputResponse struct {
 // BuildActionOutput is used to get the full output for a BuildAction.
 // If the BuildAction has output, it will retrieve the full output
 // from the OutputURL.
-func (c *Client) BuildActionOutput(ctx context.Context, b *BuildAction) (string, error) {
+func (c *Client) BuildActionOutput(ctx context.Context, num uint64, b *BuildAction) (string, error) {
 	if !b.HasOutput {
 		return "", nil
 	}
 
-	req, err := http.NewRequest("GET", b.OutputURL, nil)
-	req = req.WithContext(ctx)
+	var resp *http.Response
+	var err error
 
-	resp, err := c.client.Do(req)
+	switch b.Status {
+	case "pending":
+		return "", nil
+	case "success":
+		fallthrough
+	case "failed":
+		req, _ := http.NewRequest("GET", b.OutputURL, nil)
+		req = req.WithContext(ctx)
+
+		resp, err = c.client.Do(req)
+	default:
+		url := fmt.Sprintf("%s/%d/output/%d/%d", c.baseURL(), num, b.Step, b.Index)
+		req, _ := http.NewRequest("GET", url, nil)
+		resp, err = c.do(ctx, req)
+	}
+
 	if err != nil {
 		return "", err
 	}
