@@ -266,7 +266,7 @@ func TestBuildActionOutput(t *testing.T) {
 
 			ctx := context.Background()
 			tt.action.OutputURL = ts.URL + tt.action.OutputURL
-			out, err := client.BuildActionOutput(ctx, tt.action)
+			out, err := client.BuildActionOutput(ctx, 0, tt.action)
 
 			if tt.err != nil {
 				if err == nil {
